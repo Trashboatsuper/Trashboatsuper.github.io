@@ -219,3 +219,112 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 ////////////////////////////////////////////////////////////////////////////////////////chat gpt ends here
+
+
+
+    //////////position within the viewport
+    function getRandomPosition() {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const maxLeft = viewportWidth - imageSize;
+        const maxTop = viewportHeight - imageSize;
+        const left = Math.random() * maxLeft;
+        const top = Math.random() * maxTop;
+        return { left, top };
+    }
+    ///////////////collision and shit
+    function checkCollision(rect1, rect2) {
+        return !(rect1.right < rect2.left || 
+                 rect1.left > rect2.right || 
+                 rect1.bottom < rect2.top || 
+                 rect1.top > rect2.bottom);
+    }
+    //repelling effect between two images
+    function handleCollision(image1, image2) {
+        // Calculate direction vector between the two images cuz just count man
+        let dx = parseFloat(image1.style.left) - parseFloat(image2.style.left);
+        let dy = parseFloat(image1.style.top) - parseFloat(image2.style.top);
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        ///////////////////////////////////////////////////////////////////
+        if (distance < imageSize) { ///////Check if they are colliding: but real comes from youtube 
+            let overlap = imageSize - distance;
+            dx /= distance;
+            dy /= distance;
+            // Move each image away from each other and fuck
+            image1.style.left = `${parseFloat(image1.style.left) + dx * overlap}px`;
+            image1.style.top = `${parseFloat(image1.style.top) + dy * overlap}px`;
+            image2.style.left = `${parseFloat(image2.style.left) - dx * overlap}px`;
+            image2.style.top = `${parseFloat(image2.style.top) - dy * overlap}px`;
+            // Apply reduced velocity for collision
+            ///////////shiiiiiiiiiiiitttt why it does not do what i want it to do shitttttt but anyway all let it there
+            let repelFactor = 0.8; // Apply less force on collision for a more softer bounce
+            image1.dx += dx * repelFactor;
+            image1.dy += dy * repelFactor;
+            image2.dx -= dx * repelFactor;
+            image2.dy -= dy * repelFactor;
+        }
+    }
+});
+//////////////aaaaaaaaaaaaaaaaaaa ima kill myself here i just let it there
+
+
+
+
+function makeDraggable(element) {
+    let startX, startY, initialX, initialY, offsetX, offsetY;
+
+    function onMouseDown(e) {
+        startX = e.clientX;
+        startY = e.clientY;
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function onMouseMove(e) {
+        offsetX = e.clientX - startX;
+        offsetY = e.clientY - startY;
+        element.style.left = initialX + offsetX + 'px';
+        element.style.top = initialY + offsetY + 'px';
+        element.style.cursor = 'grabbing';
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        element.style.cursor = 'grab';
+    }
+
+    function onTouchStart(e) {
+        e.preventDefault(); // Prevent scrolling while dragging
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+    }
+
+    function onTouchMove(e) {
+        const touch = e.touches[0];
+        offsetX = touch.clientX - startX;
+        offsetY = touch.clientY - startY;
+        element.style.left = initialX + offsetX + 'px';
+        element.style.top = initialY + offsetY + 'px';
+        element.style.cursor = 'grabbing';
+    }
+
+    function onTouchEnd() {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        element.style.cursor = 'grab';
+    }
+
+    element.addEventListener('mousedown', onMouseDown);
+    element.addEventListener('touchstart', onTouchStart);
+}
+
+document.querySelectorAll('.manipulatable').forEach(makeDraggable);
+
