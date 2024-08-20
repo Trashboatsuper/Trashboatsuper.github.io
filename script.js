@@ -263,3 +263,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 //////////////aaaaaaaaaaaaaaaaaaa ima kill myself here i just let it there
+
+
+
+
+function makeDraggable(element) {
+    let startX, startY, initialX, initialY, offsetX, offsetY;
+
+    function onMouseDown(e) {
+        startX = e.clientX;
+        startY = e.clientY;
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function onMouseMove(e) {
+        offsetX = e.clientX - startX;
+        offsetY = e.clientY - startY;
+        element.style.left = initialX + offsetX + 'px';
+        element.style.top = initialY + offsetY + 'px';
+        element.style.cursor = 'grabbing';
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        element.style.cursor = 'grab';
+    }
+
+    function onTouchStart(e) {
+        e.preventDefault(); // Prevent scrolling while dragging
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+    }
+
+    function onTouchMove(e) {
+        const touch = e.touches[0];
+        offsetX = touch.clientX - startX;
+        offsetY = touch.clientY - startY;
+        element.style.left = initialX + offsetX + 'px';
+        element.style.top = initialY + offsetY + 'px';
+        element.style.cursor = 'grabbing';
+    }
+
+    function onTouchEnd() {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        element.style.cursor = 'grab';
+    }
+
+    element.addEventListener('mousedown', onMouseDown);
+    element.addEventListener('touchstart', onTouchStart);
+}
+
+document.querySelectorAll('.manipulatable').forEach(makeDraggable);
